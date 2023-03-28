@@ -2,9 +2,9 @@ name: functionapp deployment
 
 on:
   workflow_dispatch: #lets you run the workflow manually
-  push:
-    branches:
-    - main
+  # push:
+  #   branches:
+  #   - main
 
 env:
   AZURE_FUNCTIONAPP_NAME: deployment-fnctionapp
