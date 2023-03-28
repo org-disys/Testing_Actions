@@ -28,17 +28,19 @@ jobs:
 
     - name: NuGet to restore dependencies as well as project-specific tools that are specified in the project file
       run: nuget restore
-
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
       
-    # - name: Set up dependency caching for faster builds
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: ~/.nuget/packages
-    #     key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-nuget-
+    - name: Restore
+      run: dotnet restore ./Test_Functions
+      
+    # - name: Build
+    #   run: dotnet build ./Test_Functions --configuration Release --no-restore
+
+    - name: 'Resolve Project Dependencies Using Dotnet'
+      shell: bash
+      run: |
+        pushd '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet build --configuration Release --no-restore --output ./output
+        popd
       
     - name: Run MSBuild
       run: msbuild ./Test_WebApp
@@ -48,7 +50,7 @@ jobs:
       with: 
         app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
-        package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/SampleWebApplication/'
+        package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
   
      
     
