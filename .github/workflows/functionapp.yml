@@ -2,9 +2,9 @@ name: functionapp deployment
 
 on:
   workflow_dispatch: #lets you run the workflow manually
-  # push:
-  #   branches:
-  #   - main
+  push:
+    branches:
+    - main
 
 env:
   AZURE_FUNCTIONAPP_NAME: deployment-fnctionapp
@@ -22,9 +22,17 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION}}
+      
+      - name: setup node
+        
+      
+      - name: npm
+        run: npm install
           
       - name: Restore
         run: dotnet restore ./Test_Functions
+
+      
         
       # - name: Build
       #   run: dotnet build ./Test_Functions --configuration Release --no-restore
