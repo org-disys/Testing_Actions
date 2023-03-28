@@ -1,0 +1,51 @@
+name: webapp deployment
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"] 
+
+# permissions: read
+
+env:
+  AZURE_WEBAPP_NAME: "test-webapp-dotnet"
+  AZURE_WEBAPP_PACKAGE_PATH: ./Test_WebApp
+  # AZURE-WEBAPP-USER-PROFILE:
+  DOTNET-VERSION: "6.0.0"
+
+jobs:
+  build:
+    runs-on: windows-latest
+      
+    steps:
+    - name: Checkout action
+      uses: actions/checkout@v3
+    
+    - name: Setup .NETCORE  
+      uses: actions/setup-dotnet@v3
+      with: 
+        dotnet-version: ${{ env.DOTNET-VERSION }}
+    
+    - name: Set up dependency caching for faster builds
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+      
+    - name: dotnet build and publish
+      run: |
+            dotnet restore
+            dotnet build --configuration Release
+            dotnet publish -c Release --property:PublishDir='${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'   
+    - name: "Run Azure WebApp deploy action and using publish profile credentials"
+      uses: azure/webapps-deploy@v2
+      with:
+          app-name: "${{ env.AZURE_WEBAPP_NAME}}"
+          publish-profile: "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE}}"
+          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp"
+  
+     
+    
+  
